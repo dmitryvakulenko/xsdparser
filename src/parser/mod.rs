@@ -15,14 +15,14 @@ pub fn build_tree(file_name: &String) {
     let mut nodes = Vec::new();
     for e in parser {
         match e {
-            Ok(XmlEvent::StartElement { name, .. }) => {
+            Ok(e @ XmlEvent::StartElement) => {
                 let new_node = model::Node::new();
                 nodes.push(&new_node);
                 if nodes.len() > 0 {
                     nodes.last_mut().unwrap().add_child(new_node)
                 }
             }
-            Ok(XmlEvent::EndElement { name }) => {
+            Ok(e @ XmlEvent::EndElement) => {
                 nodes.pop();
             }
             Err(e) => {
