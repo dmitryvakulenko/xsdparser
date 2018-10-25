@@ -6,32 +6,30 @@ use std::fs::File;
 use std::io::BufReader;
 use std::string::String;
 use parser::xml::reader::{EventReader, XmlEvent};
+use self::model::Node;
 
-pub fn build_tree(file_name: &String) -> model::Node {
+pub fn build_tree(file_name: &String) {
     let file = File::open(file_name).unwrap();
     let file = BufReader::new(file);
 
     let parser = EventReader::new(file);
-    let mut root = model::Node::new();
-    let mut nodes = Vec::<&mut model::Node>::new();
+    let mut root = Node::new();
+    let mut parents = Vec::<Node>::new();
     for e in parser {
         match e {
             c @ Ok(XmlEvent::StartElement { .. }) => {
-                let mut new_node = model::Node::new();
-                let add_node: &mut model::Node;
-                {
-                    add_node = match nodes.last_mut() {
-                        Some(ref mut n) =>
-                            n.add_child(new_node),
-                        None =>
-                            root.add_child(new_node)
-                    };
+                let new_node = Node::new();
+                parents.push(new_node)
+            }
+            Ok(XmlEvent::EndElement { .. }) =>
+                match parents.pop() {
+                    Some(n) =>
+                        match parents.last_mut() {
+                            Some(last) => last.add_child(n),
+                            None => root.add_child(n)
+                        },
+                    None => {}
                 }
-                nodes.push(add_node)
-            },
-            Ok(XmlEvent::EndElement { .. }) => {
-                nodes.pop();
-            },
             Err(e) => {
                 println!("Error: {}", e);
                 break;
@@ -39,6 +37,4 @@ pub fn build_tree(file_name: &String) -> model::Node {
             _ => {}
         }
     }
-
-    return root;
 }

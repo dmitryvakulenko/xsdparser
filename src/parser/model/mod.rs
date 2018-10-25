@@ -9,9 +9,8 @@ impl Node {
         Node{children: Vec::new()}
     }
 
-    pub fn add_child(&mut self, n: Node) -> &mut Node {
+    pub fn add_child(&mut self, n: Node) {
         self.children.push(n);
-        self.children.last_mut().unwrap()
     }
 
 
