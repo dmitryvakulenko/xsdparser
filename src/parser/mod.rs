@@ -5,7 +5,7 @@ mod model;
 use std::fs::File;
 use std::io::BufReader;
 use std::string::String;
-use parser::xml::reader::{EventReader, XmlEvent};
+use self::xml::reader::{EventReader, XmlEvent};
 use self::model::Node;
 
 pub fn build_tree(file_name: &String) {
