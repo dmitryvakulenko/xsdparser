@@ -1,23 +1,24 @@
-extern crate xml;
-
 mod model;
 
 use std::fs::File;
 use std::io::BufReader;
 use std::string::String;
-use self::xml::reader::{EventReader, XmlEvent};
+use xml::reader::{EventReader, XmlEvent};
 use self::model::Node;
 
 pub fn build_tree(file_name: &String) {
+    debug!("Reading file {}", file_name);
+
     let file = File::open(file_name).unwrap();
     let file = BufReader::new(file);
 
     let parser = EventReader::new(file);
     let mut root = Node::new();
-    let mut parents = Vec::<Node>::new();
+    let mut parents = Vec::new();
     for e in parser {
         match e {
-            c @ Ok(XmlEvent::StartElement { .. }) => {
+            Ok(XmlEvent::StartElement {name, .. }) => {
+                debug!("Element: {}", name);
                 let new_node = Node::new();
                 parents.push(new_node)
             }
@@ -31,7 +32,7 @@ pub fn build_tree(file_name: &String) {
                     None => {}
                 }
             Err(e) => {
-                println!("Error: {}", e);
+                error!("Error: {}", e);
                 break;
             }
             _ => {}
